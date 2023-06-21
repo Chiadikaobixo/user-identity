@@ -1,0 +1,9 @@
+appsettings.json
+bin
+obj
+.dll
+.exe
+.vs
+.user
+packages.config
+PackageReference
