@@ -15,13 +15,6 @@ namespace Controllers
             _userService = userService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser(User user)
-        {
-            var response = await _userService.CreateUser<Object>(user);
-            return new JsonResult(response);
-        }
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(Guid id)
         {

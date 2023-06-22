@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Db;
+using Auth_Services;
 using Services;
 using AppResponse;
 
@@ -27,6 +28,7 @@ namespace Start
 
             services.AddControllers();
 
+            services.AddScoped<AuthServices>();
             services.AddScoped<UserService>();
             services.AddScoped<Response>();
         }
