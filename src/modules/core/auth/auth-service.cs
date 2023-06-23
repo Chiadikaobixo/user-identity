@@ -14,7 +14,6 @@ namespace Auth_Services
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
-
         }
         public async Task<T> CreateUser<T>(User user)
         {
@@ -29,7 +28,6 @@ namespace Auth_Services
                 if (fetcheduser is null)
                     return (T)_appResponse.BadRequest("Could not fetch user");
                 return (T)_appResponse.Ok(fetcheduser, "User Created");
-
             }
             catch (System.Exception ex)
             {

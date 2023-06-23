@@ -8,6 +8,8 @@ using Db;
 using Auth_Services;
 using Services;
 using AppResponse;
+using Microsoft.OpenApi.Models;
+
 
 namespace Start
 {
@@ -31,6 +33,12 @@ namespace Start
             services.AddScoped<AuthServices>();
             services.AddScoped<UserService>();
             services.AddScoped<Response>();
+
+            // Configure Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "User Identity", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -46,6 +54,16 @@ namespace Start
             {
                 endpoints.MapControllers();
             });
+
+            // Enable Swagger UI
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Identity API V1");
+                c.RoutePrefix = string.Empty;
+            });
+
+            // Enable Swagger JSON endpoint
+            app.UseSwagger();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Auth_Controller
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController
+    public class AuthController : ControllerBase
     {
         private readonly AuthServices _authService;
 
