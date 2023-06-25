@@ -9,7 +9,11 @@ using Auth_Services;
 using Services;
 using AppResponse;
 using Microsoft.OpenApi.Models;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Hash;
+using Jwt;
 
 namespace Start
 {
@@ -33,6 +37,8 @@ namespace Start
             services.AddScoped<AuthServices>();
             services.AddScoped<UserService>();
             services.AddScoped<Response>();
+            services.AddScoped<Hashed>();
+            services.AddScoped<Token>();
 
             // Configure Swagger
             services.AddSwaggerGen(c =>
@@ -64,6 +70,7 @@ namespace Start
 
             // Enable Swagger JSON endpoint
             app.UseSwagger();
+
         }
     }
 }

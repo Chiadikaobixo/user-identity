@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using UserEntity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
 {
     [Route("api/users")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;

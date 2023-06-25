@@ -40,9 +40,9 @@ namespace Services
                 if (existingUser is null)
                     return (T)_appResponse.BadRequest("User does not exist");
 
-                existingUser.FirstName = user.FirstName;
-                existingUser.LastName = user.LastName;
-                existingUser.Age = user.Age;
+                existingUser.first_name = user.first_name;
+                existingUser.last_name = user.last_name;
+                existingUser.password = user.password;
 
                 var updatedUser = _dbContext.Users.Update(existingUser);
                 await _dbContext.SaveChangesAsync();
