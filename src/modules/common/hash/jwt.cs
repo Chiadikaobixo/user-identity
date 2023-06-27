@@ -17,7 +17,7 @@ namespace Jwt
         }
         public string generate(User existingUser)
         {
-            var issuerSecretKey = Configuration.GetSection("Jwt:IssuerSigningKey").Value ?? "TTT";
+            var issuerSecretKey = Configuration.GetSection("Jwt:SecretKey").Value ?? "hhhhh";
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
@@ -31,7 +31,9 @@ namespace Jwt
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
+                Audience = Configuration["Jwt:ValidAudience"],
                 Expires = DateTime.UtcNow.AddDays(1), 
+                Issuer = Configuration["Jwt:ValidIssuer"],
                 SigningCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

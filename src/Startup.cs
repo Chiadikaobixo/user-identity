@@ -14,6 +14,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Hash;
 using Jwt;
+using Middleware;
+using Controllers;
 
 namespace Start
 {
@@ -39,12 +41,37 @@ namespace Start
             services.AddScoped<Response>();
             services.AddScoped<Hashed>();
             services.AddScoped<Token>();
+            services.AddHttpContextAccessor();
+
+            // Configure JWT authentication
+            var jwtSecretKey = Configuration["Jwt:SecretKey"];
+            var jwtIssuer = Configuration["Jwt:ValidIssuer"];
+            var jwtAudience = Configuration["Jwt:ValidAudience"];
+            var issuerSecretKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey?? "hhhhh"));
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = issuerSecretKey,
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtIssuer,
+                        ValidateAudience = true,
+                        ValidAudience = jwtAudience,
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             // Configure Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "User Identity", Version = "v1" });
             });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -56,9 +83,25 @@ namespace Start
 
             app.UseRouting();
 
+            // Use authentication middleware
+            app.UseAuthentication();
+
+            // Use authorization middleware
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            // Use the JwtTokenValidationMiddleware only for endpoints other than CreateUser and Login
+            app.MapWhen(context =>
+            {
+                return !context.Request.Path.StartsWithSegments("/api/auth/create") &&
+                       !context.Request.Path.StartsWithSegments("/api/auth/login");
+            }, builder =>
+            {
+                builder.UseMiddleware<JwtTokenValidationMiddleware>();
             });
 
             // Enable Swagger UI
@@ -70,7 +113,6 @@ namespace Start
 
             // Enable Swagger JSON endpoint
             app.UseSwagger();
-
         }
     }
 }

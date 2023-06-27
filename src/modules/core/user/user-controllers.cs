@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services;
 using UserEntity;
 using Microsoft.AspNetCore.Authorization;
+using UserDTO;
 
 namespace Controllers
 {
@@ -24,17 +25,17 @@ namespace Controllers
             return new JsonResult(response);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, User user)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser(UserUpdateDTO updateUser)
         {
-            var response = await _userService.UpdateUser<Object>(id, user);
+            var response = await _userService.UpdateUser<Object>(updateUser);
             return new JsonResult(response);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteUser()
         {
-            var response = await _userService.DeleteUser<Object>(id);
+            var response = await _userService.DeleteUser<Object>();
             return new JsonResult(response);
         }
     }

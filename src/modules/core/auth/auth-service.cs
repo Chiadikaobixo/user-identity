@@ -56,7 +56,7 @@ namespace Auth_Services
                 var existingUser = _dbContext.Users.FirstOrDefault(u => u.email == authuser.email);
                 if (existingUser is null)
                     return (T)_appResponse.BadRequest("Loggin Failed");
-
+                
                 bool isPasswordValid = _hashed.validPassword(authuser.password, existingUser.password);
                 if(!isPasswordValid)
                     return (T)_appResponse.BadRequest("Loggin Failed");

@@ -1,6 +1,9 @@
 using AppResponse;
 using Db;
 using UserEntity;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using UserDTO;
 
 namespace Services
 {
@@ -9,11 +12,13 @@ namespace Services
         private readonly DatabaseContext _dbContext;
 
         private readonly Response _appResponse;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(DatabaseContext dbContext, Response appResponse)
+        public UserService(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, Response appResponse)
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<T> GetUser<T>(Guid id)
@@ -32,17 +37,18 @@ namespace Services
             }
         }
 
-        public async Task<T> UpdateUser<T>(Guid id, User user)
+        public async Task<T> UpdateUser<T>(UserUpdateDTO updateUser)
         {
             try
             {
-                var existingUser = await _dbContext.Users.FindAsync(id);
+                var userId = UserIdClaim();
+                var existingUser = await _dbContext.Users.FindAsync(userId);
                 if (existingUser is null)
                     return (T)_appResponse.BadRequest("User does not exist");
 
-                existingUser.first_name = user.first_name;
-                existingUser.last_name = user.last_name;
-                existingUser.password = user.password;
+                existingUser.first_name = updateUser.first_name;
+                existingUser.last_name = updateUser.last_name;
+                existingUser.password = updateUser.password;
 
                 var updatedUser = _dbContext.Users.Update(existingUser);
                 await _dbContext.SaveChangesAsync();
@@ -59,11 +65,12 @@ namespace Services
             }
         }
 
-        public async Task<T> DeleteUser<T>(Guid id)
+        public async Task<T> DeleteUser<T>()
         {
             try
             {
-                var user = await _dbContext.Users.FindAsync(id);
+                var userId = UserIdClaim();
+                var user = await _dbContext.Users.FindAsync(userId);
                 if (user is null)
                     return (T)_appResponse.BadRequest("User Does Not Exist");
                 var removedUser = _dbContext.Users.Remove(user);
@@ -75,6 +82,24 @@ namespace Services
                 var errorMessage = ex.InnerException?.Message;
                 throw;
             }
+        }
+
+        public Guid? UserIdClaim()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user != null)
+            {
+                var nameIdentifierClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (nameIdentifierClaim != null)
+                {
+                    if (Guid.TryParse(nameIdentifierClaim.Value, out Guid nameIdentifierValue))
+                    {
+                        return nameIdentifierValue;
+                    }
+                }
+            }
+            return null;
         }
     }
 }
