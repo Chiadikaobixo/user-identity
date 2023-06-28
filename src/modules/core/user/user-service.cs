@@ -4,6 +4,7 @@ using UserEntity;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using UserDTO;
+using AutoMapper;
 
 namespace Services
 {
@@ -13,12 +14,16 @@ namespace Services
 
         private readonly Response _appResponse;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        // private readonly IMapper _mapper;
 
-        public UserService(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, Response appResponse)
+        public UserService(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, Response appResponse
+        // IMapper mapper
+        )
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
             _httpContextAccessor = httpContextAccessor;
+            // _mapper = mapper;
         }
 
         public async Task<T> GetUser<T>(Guid id)
@@ -44,11 +49,13 @@ namespace Services
                 var userId = UserIdClaim();
                 var existingUser = await _dbContext.Users.FindAsync(userId);
                 if (existingUser is null)
-                    return (T)_appResponse.BadRequest("User does not exist");
+                    return (T)_appResponse.BadRequest("User does not exist@@");
 
                 existingUser.first_name = updateUser.first_name;
                 existingUser.last_name = updateUser.last_name;
                 existingUser.password = updateUser.password;
+
+                // var updateProperties = _mapper.Map(updateUser, existingUser);
 
                 var updatedUser = _dbContext.Users.Update(existingUser);
                 await _dbContext.SaveChangesAsync();
@@ -101,5 +108,13 @@ namespace Services
             }
             return null;
         }
+
+        // internal class MappingProfile : Profile
+        // {
+        //     public MappingProfile()
+        //     {
+        //         CreateMap<UserUpdateDTO, User>();
+        //     }
+        // }
     }
 }

@@ -4,6 +4,7 @@ using UserEntity;
 using AuthDTO;
 using Hash;
 using Jwt;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth_Services
 {
@@ -25,6 +26,10 @@ namespace Auth_Services
         {
             try
             {                
+                var userExist = await _dbContext.Users.FirstOrDefaultAsync(u => u.email == authuser.email);
+                if(userExist != null)
+                    return (T)_appResponse.BadRequest("User Already Exist");
+                
                 string hashed_password = _hashed.hashedPassword(authuser.password);
                 User userEntity = new User
                 {

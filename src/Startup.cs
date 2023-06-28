@@ -35,6 +35,7 @@ namespace Start
                 options.UseSqlServer(connectionString));
 
             services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<AuthServices>();
             services.AddScoped<UserService>();
