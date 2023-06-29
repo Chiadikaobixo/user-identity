@@ -21,8 +21,7 @@ namespace Jwt
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
-                new Claim(ClaimTypes.Email, existingUser.email)
-                // Add additional claims as needed
+                new Claim(ClaimTypes.Email, existingUser.email!)
             };
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(issuerSecretKey));
 

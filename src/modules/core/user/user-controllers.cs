@@ -33,9 +33,9 @@ namespace Controllers
         }
 
         [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteUser()
+        public async Task<IActionResult> DeleteUser(Guid? optionalId = null)
         {
-            var response = await _userService.DeleteUser<Object>();
+            var response = await _userService.DeleteUser<Object>(optionalId);
             return new JsonResult(response);
         }
     }

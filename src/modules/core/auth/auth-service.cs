@@ -19,7 +19,7 @@ namespace Auth_Services
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
-            _hashed = hashed; 
+            _hashed = hashed;
             _token = token;
         }
         public async Task<T> CreateUser<T>(AuthUserDTO authuser)
@@ -27,16 +27,16 @@ namespace Auth_Services
             try
             {                
                 var userExist = await _dbContext.Users.FirstOrDefaultAsync(u => u.email == authuser.email);
-                if(userExist != null)
+                if (userExist != null)
                     return (T)_appResponse.BadRequest("User Already Exist");
-                
+
                 string hashed_password = _hashed.hashedPassword(authuser.password);
                 User userEntity = new User
                 {
                     email = authuser.email,
                     password = hashed_password,
                 };
-                
+
                 var createUser = await _dbContext.Users.AddAsync(userEntity);
                 if (createUser is null)
                     return (T)_appResponse.BadRequest("User Not Created");
@@ -58,16 +58,17 @@ namespace Auth_Services
         {
             try
             {
-                var existingUser = _dbContext.Users.FirstOrDefault(u => u.email == authuser.email);
+                var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.email == authuser.email);
                 if (existingUser is null)
-                    return (T)_appResponse.BadRequest("Loggin Failed");
-                
-                bool isPasswordValid = _hashed.validPassword(authuser.password, existingUser.password);
-                if(!isPasswordValid)
+                    return (T)_appResponse.BadRequest("User does not exist");
+
+                bool isPasswordValid = _hashed.validPassword(authuser.password, existingUser.password!);
+                if (!isPasswordValid)
                     return (T)_appResponse.BadRequest("Loggin Failed");
 
                 var jwtToken = _token.generate(existingUser);
-                var response = new {
+                var response = new
+                {
                     user = existingUser,
                     token = jwtToken
                 };
