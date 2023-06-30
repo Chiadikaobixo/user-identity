@@ -1,11 +1,10 @@
 using AppResponse;
 using Db;
-using UserEntity;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using UserDTO;
 using Hash;
-using AutoMapper;
+using User_Claim;
 
 namespace Services
 {
@@ -14,18 +13,16 @@ namespace Services
         private readonly DatabaseContext _dbContext;
         private readonly Response _appResponse;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClaimService _claimService;
         private readonly Hashed _hashed;
-        // private readonly IMapper _mapper;
 
-        public UserService(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, Response appResponse, Hashed hashed
-        // IMapper mapper
-        )
+        public UserService(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, ClaimService claimService, Response appResponse, Hashed hashed)
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
+            _claimService = claimService;
             _httpContextAccessor = httpContextAccessor;
             _hashed = hashed;
-            // _mapper = mapper;
         }
 
         public async Task<T> GetUser<T>(Guid id)
@@ -48,7 +45,8 @@ namespace Services
         {
             try
             {
-                var userId = UserIdClaim();
+                var userId =  _claimService.AuthenticatedUserClaim();
+
                 var existingUser = await _dbContext.Users.FindAsync(userId);
                 if (existingUser is null)
                     return (T)_appResponse.BadRequest("User does not exist@@");
@@ -61,8 +59,6 @@ namespace Services
                     existingUser.password = _hashed.hashedPassword(updateUser.password);
                 if (!string.IsNullOrEmpty(updateUser.date_of_birth))
                     existingUser.date_of_birth = updateUser.date_of_birth;
-
-                // var updateProperties = _mapper.Map(updateUser, existingUser);
 
                 var updatedUser = _dbContext.Users.Update(existingUser);
                 await _dbContext.SaveChangesAsync();
@@ -83,12 +79,13 @@ namespace Services
         {
             try
             {
-                var userId = UserIdClaim();
+                var userId =  _claimService.AuthenticatedUserClaim();
+
                 var user = await _dbContext.Users.FindAsync(userId);
                 if (user is null)
                     return (T)_appResponse.BadRequest("User Does Not Exist");
                 
-                if (user.Role == UserRole.Admin)
+                if (user.role == UserRole.Admin)
                 {
                     var deleteUserId = optionalId ?? userId;
                     var userToDelete = await _dbContext.Users.FindAsync(deleteUserId);
@@ -129,13 +126,5 @@ namespace Services
             }
             return null;
         }
-
-        // internal class MappingProfile : Profile
-        // {
-        //     public MappingProfile()
-        //     {
-        //         CreateMap<UserUpdateDTO, User>();
-        //     }
-        // }
     }
 }

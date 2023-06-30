@@ -1,5 +1,8 @@
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using UserEntity;
+using WalletEntity;
 
 namespace Db
 {
@@ -11,6 +14,7 @@ namespace Db
         }
 
         public required DbSet<User> Users { get; set; }
+        public required DbSet<Wallet> Wallets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,8 +22,12 @@ namespace Db
                 .HasIndex(u => u.email)
                 .IsUnique();
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Wallet>()
+                .HasIndex(u => u.wallet_tag)
+                .IsUnique();
+            base.OnModelCreating(modelBuilder);
         }
-         public override int SaveChanges()
+        public override int SaveChanges()
         {
             UpdateTimestamps();
             return base.SaveChanges();
@@ -30,22 +38,40 @@ namespace Db
             UpdateTimestamps();
             return await base.SaveChangesAsync(cancellationToken);
         }
-
-         private void UpdateTimestamps()
+        private void UpdateTimestamps()
         {
-            var entities = ChangeTracker.Entries<User>();
+            var userEntries = ChangeTracker.Entries<User>().Cast<EntityEntry>();
+            var walletEntries = ChangeTracker.Entries<Wallet>().Cast<EntityEntry>();
+
+            var entities = userEntries.Concat<EntityEntry>(walletEntries);
+
             var currentTime = DateTime.UtcNow;
 
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)
                 {
-                    entity.Entity.CreatedAt = currentTime;
-                    entity.Entity.UpdatedAt = currentTime;
+                    if (entity.Entity is User user)
+                    {
+                        user.created_at = currentTime;
+                        user.updated_at = currentTime;
+                    }
+                    else if (entity.Entity is Wallet wallet)
+                    {
+                        wallet.created_at = currentTime;
+                        wallet.updated_at = currentTime;
+                    }
                 }
                 else if (entity.State == EntityState.Modified)
                 {
-                    entity.Entity.UpdatedAt = currentTime;
+                    if (entity.Entity is User user)
+                    {
+                        user.updated_at = currentTime;
+                    }
+                    else if (entity.Entity is Wallet wallet)
+                    {
+                        wallet.updated_at = currentTime;
+                    }
                 }
             }
         }

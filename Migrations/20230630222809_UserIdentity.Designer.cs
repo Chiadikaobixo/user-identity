@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace userIdentity.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230627214026_Users")]
-    partial class Users
+    [Migration("20230630222809_UserIdentity")]
+    partial class UserIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,13 +31,7 @@ namespace userIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime>("created_at")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("date_of_birth")
@@ -55,6 +49,15 @@ namespace userIdentity.Migrations
                     b.Property<string>("password")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("role")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("wallet_tag")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("email")
@@ -62,6 +65,36 @@ namespace userIdentity.Migrations
                         .HasFilter("[email] IS NOT NULL");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WalletEntity.Wallet", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("account_balance")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("userId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("wallet_tag")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("wallet_tag")
+                        .IsUnique()
+                        .HasFilter("[wallet_tag] IS NOT NULL");
+
+                    b.ToTable("Wallets");
                 });
 #pragma warning restore 612, 618
         }

@@ -16,14 +16,14 @@ namespace Auth_Controller
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateUser(AuthUserDTO authuser)
+        public async Task<IActionResult> CreateUser(CreateUserDTO authuser)
         {
             var response = await _authService.CreateUser<Object>(authuser);
             return new JsonResult(response);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUser(AuthUserDTO authuser)
+        public async Task<IActionResult> LoginUser(LoginDTO authuser)
         {
             var response = await _authService.LoginUser<Object>(authuser);
             return new JsonResult(response);

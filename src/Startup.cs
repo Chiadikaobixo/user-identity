@@ -15,7 +15,8 @@ using System.Text;
 using Hash;
 using Jwt;
 using Middleware;
-using Controllers;
+using Wallet_service;
+using User_Claim;
 
 namespace Start
 {
@@ -42,6 +43,8 @@ namespace Start
             services.AddScoped<Response>();
             services.AddScoped<Hashed>();
             services.AddScoped<Token>();
+            services.AddScoped<WalletService>();
+            services.AddScoped<ClaimService>();
             services.AddHttpContextAccessor();
 
             // Configure JWT authentication
