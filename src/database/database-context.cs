@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using UserEntity;
 using WalletEntity;
+using TransactionEntity;
+using OrderEntity;
 
 namespace Db
 {
@@ -15,6 +17,8 @@ namespace Db
 
         public required DbSet<User> Users { get; set; }
         public required DbSet<Wallet> Wallets { get; set; }
+        public required DbSet<Transaction> Transactions { get; set; }
+        public required DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,8 +46,10 @@ namespace Db
         {
             var userEntries = ChangeTracker.Entries<User>().Cast<EntityEntry>();
             var walletEntries = ChangeTracker.Entries<Wallet>().Cast<EntityEntry>();
+            var orderEntries = ChangeTracker.Entries<Order>().Cast<EntityEntry>();
+            var transactionEntries = ChangeTracker.Entries<Transaction>().Cast<EntityEntry>();
 
-            var entities = userEntries.Concat<EntityEntry>(walletEntries);
+            var entities = userEntries.Concat<EntityEntry>(walletEntries).Concat<EntityEntry>(orderEntries).Concat<EntityEntry>(transactionEntries);
 
             var currentTime = DateTime.UtcNow;
 
@@ -61,6 +67,16 @@ namespace Db
                         wallet.created_at = currentTime;
                         wallet.updated_at = currentTime;
                     }
+                    else if (entity.Entity is Order order)
+                    {
+                        order.created_at = currentTime;
+                        order.updated_at = currentTime;
+                    }
+                    else if (entity.Entity is Transaction transaction)
+                    {
+                        transaction.created_at = currentTime;
+                        transaction.updated_at = currentTime;
+                    }
                 }
                 else if (entity.State == EntityState.Modified)
                 {
@@ -71,6 +87,14 @@ namespace Db
                     else if (entity.Entity is Wallet wallet)
                     {
                         wallet.updated_at = currentTime;
+                    }
+                    else if (entity.Entity is Order order)
+                    {
+                        order.updated_at = currentTime;
+                    }
+                    else if (entity.Entity is Transaction transaction)
+                    {
+                        transaction.updated_at = currentTime;
                     }
                 }
             }

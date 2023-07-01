@@ -17,6 +17,7 @@ using Jwt;
 using Middleware;
 using Wallet_service;
 using User_Claim;
+using Transaction_service;
 
 namespace Start
 {
@@ -44,6 +45,7 @@ namespace Start
             services.AddScoped<Hashed>();
             services.AddScoped<Token>();
             services.AddScoped<WalletService>();
+            services.AddScoped<TransactionService>();
             services.AddScoped<ClaimService>();
             services.AddHttpContextAccessor();
 

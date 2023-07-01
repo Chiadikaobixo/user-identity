@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace userIdentity.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230630222809_UserIdentity")]
+    [Migration("20230701230127_UserIdentity")]
     partial class UserIdentity
     {
         /// <inheritdoc />
@@ -24,6 +24,75 @@ namespace userIdentity.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("OrderEntity.Order", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("order_status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("order_type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("purpose")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("recievers_wallet_tag")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("senders_wallet_tag")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("userId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("TransactionEntity.Transaction", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("orderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("transaction_status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("updated_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("userId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Transactions");
+                });
 
             modelBuilder.Entity("UserEntity.User", b =>
                 {
