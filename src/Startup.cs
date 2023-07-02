@@ -19,6 +19,7 @@ using Wallet_service;
 using User_Claim;
 using Transaction_service;
 using Order_service;
+using Transaction_helper;
 
 namespace Start
 {
@@ -49,6 +50,7 @@ namespace Start
             services.AddScoped<TransactionService>();
             services.AddScoped<ClaimService>();
             services.AddScoped<OrderService>();
+            services.AddScoped<TransactionHelper>();
             services.AddHttpContextAccessor();
 
             // Configure JWT authentication

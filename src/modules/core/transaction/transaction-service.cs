@@ -34,7 +34,11 @@ namespace Transaction_service
                     return (T)_appResponse.BadRequest("Failed to create order");
                 await _dbContext.SaveChangesAsync();
 
-                return (T)_appResponse.Ok("", "Order Logged");
+                var fetchOrder = await _dbContext.Orders.FindAsync(createOrder.Entity.id);
+                if (fetchOrder is null)
+                    return (T)_appResponse.BadRequest("Could not create and order");
+                
+                return (T)_appResponse.Ok(fetchOrder, "Order Logged");
             }
             catch (System.Exception ex)
             {
@@ -55,7 +59,12 @@ namespace Transaction_service
                 if (createOrder is null)
                     return (T)_appResponse.BadRequest("Failed to create order");
                 await _dbContext.SaveChangesAsync();
-                return (T)_appResponse.Ok("", "Order Logged");
+
+                var fetchOrder = await _dbContext.Orders.FindAsync(createOrder.Entity.id);
+                if (fetchOrder is null)
+                    return (T)_appResponse.BadRequest("Could not create and order");
+                
+                return (T)_appResponse.Ok(fetchOrder, "Order Logged");
             }
             catch (System.Exception ex)
             {
@@ -76,7 +85,12 @@ namespace Transaction_service
                 if (createOrder is null)
                     return (T)_appResponse.BadRequest("Failed to create order");
                 await _dbContext.SaveChangesAsync();
-                return (T)_appResponse.Ok("", "Order Logged");
+
+                var fetchOrder = await _dbContext.Orders.FindAsync(createOrder.Entity.id);
+                if (fetchOrder is null)
+                    return (T)_appResponse.BadRequest("Could not create and order");
+                
+                return (T)_appResponse.Ok(fetchOrder, "Order Logged");
             }
             catch (System.Exception ex)
             {
