@@ -3,7 +3,7 @@ using Db;
 using OrderEntity;
 using User_Claim;
 using AppResponse;
-
+using Order_service;
 
 namespace Transaction_service
 {
@@ -12,28 +12,22 @@ namespace Transaction_service
         private readonly DatabaseContext _dbContext;
         private readonly Response _appResponse;
         private readonly ClaimService _claimService;
+        private readonly OrderService _orderService;
 
-        public TransactionService(DatabaseContext dbContext, Response appResponse, ClaimService claimService)
+        public TransactionService(DatabaseContext dbContext, Response appResponse, OrderService orderService, ClaimService claimService)
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
             _claimService = claimService;
+            _orderService = orderService;
         }
         public async Task<T> deposit<T>(OrderDetails orderDetails)
         {
             try
             {
                 var userId = _claimService.AuthenticatedUserClaim();
-                Order newOrder = new Order
-                {
-                    userId = userId,
-                    senders_wallet_tag = orderDetails.senders_wallet_tag,
-                    order_type = OrderType.Deposit,
-                    amount = orderDetails.amount,
-                    recievers_wallet_tag = orderDetails.recievers_wallet_tag,
-                    purpose = orderDetails.purpose,
-                    reference = GeneratePaymentReference()
-                };
+
+                var newOrder = _orderService.logOrder(orderDetails, userId, OrderType.Deposit);
 
                 var createOrder = await _dbContext.Orders.AddAsync(newOrder);
                 if (createOrder is null)
@@ -54,16 +48,8 @@ namespace Transaction_service
             try
             {
                 var userId = _claimService.AuthenticatedUserClaim();
-                Order newOrder = new Order
-                {
-                    userId = userId,
-                    senders_wallet_tag = orderDetails.senders_wallet_tag,
-                    order_type = OrderType.Withdrawal,
-                    amount = orderDetails.amount,
-                    recievers_wallet_tag = orderDetails.recievers_wallet_tag,
-                    purpose = orderDetails.purpose,
-                    reference = GeneratePaymentReference()
-                };
+
+                var newOrder = _orderService.logOrder(orderDetails, userId, OrderType.Withdrawal);
 
                 var createOrder = await _dbContext.Orders.AddAsync(newOrder);
                 if (createOrder is null)
@@ -83,16 +69,8 @@ namespace Transaction_service
             try
             {
                 var userId = _claimService.AuthenticatedUserClaim();
-                Order newOrder = new Order
-                {
-                    userId = userId,
-                    senders_wallet_tag = orderDetails.senders_wallet_tag,
-                    order_type = OrderType.Transfer,
-                    amount = orderDetails.amount,
-                    recievers_wallet_tag = orderDetails.recievers_wallet_tag,
-                    purpose = orderDetails.purpose,
-                    reference = GeneratePaymentReference()
-                };
+
+                var newOrder = _orderService.logOrder(orderDetails, userId, OrderType.Transfer);
 
                 var createOrder = await _dbContext.Orders.AddAsync(newOrder);
                 if (createOrder is null)
@@ -105,15 +83,6 @@ namespace Transaction_service
                 var errorMessage = ex.InnerException?.Message;
                 throw;
             }
-        }
-
-        string GeneratePaymentReference()
-        {
-            DateTime now = DateTime.Now;
-            string timestamp = now.ToString("yyyyMMddHHmmss");
-            string uniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
-
-            return $"{timestamp}-{uniqueId}";
         }
     }
 }
