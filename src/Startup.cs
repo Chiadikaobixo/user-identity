@@ -59,7 +59,6 @@ namespace Start
             services.AddScoped<PaystackCharge>();
             services.AddHttpContextAccessor();
             services.AddSingleton<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey));
-            // services.AddTransient<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey));
 
             // Configure JWT authentication
             var jwtSecretKey = Configuration["Jwt:SecretKey"];
