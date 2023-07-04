@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Cors;
 using Db;
 using Auth_Services;
 using Services;
@@ -20,6 +21,8 @@ using User_Claim;
 using Transaction_service;
 using Order_service;
 using Transaction_helper;
+using paystack_charge;
+using System;
 
 namespace Start
 {
@@ -35,11 +38,13 @@ namespace Start
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetSection("Options:ConnectionString").Value;
+            var paystackSecretKey = Configuration.GetSection("Paystack:SecretKey").Value;
             services.AddDbContext<DatabaseContext>(options =>
                 options.UseSqlServer(connectionString));
 
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
+            services.AddCors();
 
             services.AddScoped<AuthServices>();
             services.AddScoped<UserService>();
@@ -51,7 +56,10 @@ namespace Start
             services.AddScoped<ClaimService>();
             services.AddScoped<OrderService>();
             services.AddScoped<TransactionHelper>();
+            services.AddScoped<PaystackCharge>();
             services.AddHttpContextAccessor();
+            services.AddSingleton<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey));
+            // services.AddTransient<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey));
 
             // Configure JWT authentication
             var jwtSecretKey = Configuration["Jwt:SecretKey"];
@@ -111,6 +119,8 @@ namespace Start
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseRouting();
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Transaction_service;
+using paystack_charge;
 
 namespace Transaction_Controllers
 {
@@ -10,13 +11,15 @@ namespace Transaction_Controllers
     public class TransactionController : ControllerBase
     {
         private readonly TransactionService _transactionService;
+        private readonly PaystackCharge _paystackCharge;
 
-        public TransactionController(TransactionService transactionService)
+        public TransactionController(TransactionService transactionService, PaystackCharge paystackCharge)
         {
             _transactionService = transactionService;
+            _paystackCharge = paystackCharge;
         }
 
-        [HttpPost()]
+        [HttpPost("initialize")]
         public async Task<IActionResult> transaction(OrderType orderType, OrderDetails orderDetails)
         {
             switch (orderType)

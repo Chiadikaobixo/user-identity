@@ -28,5 +28,20 @@ namespace User_Claim
             }
             return null;
         }
+
+        public string? AuthenticatedEmailClaim()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user != null)
+            {
+                var emailIdentifierClaim = user.FindFirst(ClaimTypes.Email);
+
+                if (emailIdentifierClaim != null)
+                {
+                    return emailIdentifierClaim.Value;
+                }
+            }
+            return null;
+        }
     }
 }

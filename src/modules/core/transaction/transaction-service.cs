@@ -1,9 +1,9 @@
-using System;
 using Db;
-using OrderEntity;
 using User_Claim;
 using AppResponse;
 using Order_service;
+using paystack_charge;
+using System.Text.Json;
 
 namespace Transaction_service
 {
@@ -13,19 +13,22 @@ namespace Transaction_service
         private readonly Response _appResponse;
         private readonly ClaimService _claimService;
         private readonly OrderService _orderService;
+        private readonly PaystackCharge _paystackCharge;
 
-        public TransactionService(DatabaseContext dbContext, Response appResponse, OrderService orderService, ClaimService claimService)
+        public TransactionService(DatabaseContext dbContext, Response appResponse, PaystackCharge paystackCharge, OrderService orderService, ClaimService claimService)
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
             _claimService = claimService;
             _orderService = orderService;
+            _paystackCharge = paystackCharge;
         }
         public async Task<T> deposit<T>(OrderDetails orderDetails)
         {
             try
             {
                 var userId = _claimService.AuthenticatedUserClaim();
+                var userEmail = _claimService.AuthenticatedEmailClaim();
 
                 var newOrder = _orderService.logOrder(orderDetails, userId, OrderType.Deposit);
 
@@ -37,8 +40,11 @@ namespace Transaction_service
                 var fetchOrder = await _dbContext.Orders.FindAsync(createOrder.Entity.id);
                 if (fetchOrder is null)
                     return (T)_appResponse.BadRequest("Could not create and order");
-                
-                return (T)_appResponse.Ok(fetchOrder, "Order Logged");
+
+                var initializeResponse = await _paystackCharge.initializeDeposit(userEmail!, orderDetails.amount);
+                var responseObject = JsonSerializer.Deserialize<JsonElement>(initializeResponse);
+
+                return (T)_appResponse.Ok(responseObject, "Order Logged");
             }
             catch (System.Exception ex)
             {
