@@ -144,7 +144,7 @@ namespace Start
             // Enable Swagger JSON endpoint
             app.UseSwagger();
 
-            // Use the JwtTokenValidationMiddleware only for endpoints other than CreateUser and Login
+            // Exclude this endpoints from using the JwtTokenValidationMiddleware
             app.MapWhen(context =>
             {
                 return !context.Request.Path.StartsWithSegments("/api/auth/create") &&
