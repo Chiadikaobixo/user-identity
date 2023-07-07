@@ -39,5 +39,11 @@ namespace Transaction_Controllers
                     throw new ArgumentOutOfRangeException(nameof(orderType), orderType, "Invalid order type.");
             }
         }
+
+        [HttpGet("verify/{reference}")]
+        public async Task<IActionResult> verify(string reference){
+            var response = await _transactionService.verifyTransaction<Object>(reference);
+            return new JsonResult(response);
+        }
     }
 }

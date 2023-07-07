@@ -4,7 +4,7 @@ namespace paystack_charge
 {
     public class PaystackCharge
     {
-        public const string PAYSTACK_BASE_URL = "https://api.paystack.co/transaction/initialize";
+        public const string PAYSTACK_BASE_URL = "https://api.paystack.co/transaction";
         private readonly HttpClient _httpClient;
         private readonly string _paystackSecretKey;
 
@@ -29,13 +29,30 @@ namespace paystack_charge
 
                 _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _paystackSecretKey);
 
-                var response = await _httpClient.PostAsync(PAYSTACK_BASE_URL, requestContent);
+                var response = await _httpClient.PostAsync($"{PAYSTACK_BASE_URL}/initialize", requestContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return responseContent;
             }
             catch (System.Exception ex)
             {
                 var errorMessage = ex.InnerException?.Message;
+                throw;
+            }
+        }
+
+        public async Task<string> verifyTranasction(string reference)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _paystackSecretKey);
+                
+                var response = await _httpClient.GetAsync($"{PAYSTACK_BASE_URL}/verify/{reference}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return responseContent;
+            }
+            catch (System.Exception)
+            {
+                
                 throw;
             }
         }

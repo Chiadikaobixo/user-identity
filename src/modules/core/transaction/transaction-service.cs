@@ -104,5 +104,20 @@ namespace Transaction_service
                 throw;
             }
         }
+
+        public async Task<T>verifyTransaction<T>(string reference){
+            try
+            {
+                var verifyResponse = await _paystackCharge.verifyTranasction(reference);
+                var responseObject = JsonSerializer.Deserialize<JsonElement>(verifyResponse);
+
+                return (T)_appResponse.Ok(responseObject, "Verification Status");
+            }
+            catch (System.Exception)
+            {
+                
+                throw;
+            }
+        }
     }
 }
