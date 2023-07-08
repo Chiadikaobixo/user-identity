@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Cors;
 using Db;
 using Auth_Services;
 using Services;
@@ -22,7 +21,6 @@ using Transaction_service;
 using Order_service;
 using Transaction_helper;
 using paystack_charge;
-using System;
 
 namespace Start
 {
@@ -58,7 +56,7 @@ namespace Start
             services.AddScoped<TransactionHelper>();
             services.AddScoped<PaystackCharge>();
             services.AddHttpContextAccessor();
-            services.AddSingleton<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey));
+            services.AddSingleton<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey!));
 
             // Configure JWT authentication
             var jwtSecretKey = Configuration["Jwt:SecretKey"];
