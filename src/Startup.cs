@@ -84,11 +84,11 @@ namespace Start
             // Configure Swagger
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "User Identity", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "System Wallet", Version = "v1" });
                 // Add the security definition
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "User Identity JWT Authorization header using the Bearer scheme",
+                    Description = "System Wallet JWT Authorization header using the Bearer scheme",
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer"
                 });
@@ -135,7 +135,7 @@ namespace Start
             // Enable Swagger UI
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Identity API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "System Wallet API V1");
                 c.RoutePrefix = string.Empty;
             });
 

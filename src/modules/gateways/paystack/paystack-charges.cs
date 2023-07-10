@@ -21,7 +21,8 @@ namespace paystack_charge
                 var requestData = new
                 {
                     email = userEmail,
-                    amount = orderAmount * 100
+                    amount = orderAmount * 100,
+                    callback_url = "https://yourpreferdcallbackurl.com"
                 };
 
                 var requestJson = System.Text.Json.JsonSerializer.Serialize(requestData);
