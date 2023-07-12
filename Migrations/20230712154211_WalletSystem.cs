@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace userIdentity.Migrations
+namespace walletsystem.Migrations
 {
     /// <inheritdoc />
-    public partial class UserIdentity : Migration
+    public partial class WalletSystem : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,7 @@ namespace userIdentity.Migrations
                     amount = table.Column<int>(type: "int", nullable: false),
                     recievers_wallet_tag = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     purpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    reference = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    reference = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     order_status = table.Column<int>(type: "int", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)

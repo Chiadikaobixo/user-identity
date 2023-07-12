@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace userIdentity.Migrations
+namespace walletsystem.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230701230127_UserIdentity")]
-    partial class UserIdentity
+    [Migration("20230712154211_WalletSystem")]
+    partial class WalletSystem
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,6 @@ namespace userIdentity.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("reference")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("senders_wallet_tag")

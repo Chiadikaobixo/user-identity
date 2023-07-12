@@ -54,7 +54,6 @@ namespace Start
             services.AddScoped<ClaimService>();
             services.AddScoped<OrderService>();
             services.AddScoped<TransactionHelper>();
-            services.AddScoped<PaystackCharge>();
             services.AddHttpContextAccessor();
             services.AddSingleton<PaystackCharge>(provider => new PaystackCharge(paystackSecretKey!));
 

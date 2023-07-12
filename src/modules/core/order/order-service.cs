@@ -1,10 +1,21 @@
 using OrderEntity;
+using Db;
+using AppResponse;
+using Microsoft.EntityFrameworkCore;
 
 namespace Order_service
 {
     public class OrderService
     {
-        public Order logOrder(OrderDetails orderDetails, Guid? userId, OrderType ordertype)
+        private readonly DatabaseContext _dbContext;
+        private readonly Response _appResponse;
+
+        public OrderService(DatabaseContext dbContext, Response appResponse){
+            _dbContext = dbContext;
+            _appResponse = appResponse;
+
+        }
+        public async Task<Order> logOrder(OrderDetails orderDetails, Guid? userId, OrderType ordertype, string? paymentReference)
         {
             try
             {
@@ -16,9 +27,14 @@ namespace Order_service
                     amount = orderDetails.amount,
                     recievers_wallet_tag = orderDetails.recievers_wallet_tag,
                     purpose = orderDetails.purpose,
-                    reference = GeneratePaymentReference()
+                    reference = paymentReference
                 };
-                return newOrder;
+
+                var createOrder = await _dbContext.Orders.AddAsync(newOrder);
+                if (createOrder.Entity is null) return null;
+                await _dbContext.SaveChangesAsync();
+
+                return createOrder.Entity;
             }
             catch (System.Exception ex)
             {
@@ -27,6 +43,26 @@ namespace Order_service
             }
         }
         
+        public async Task<Order> updateOrder(string reference, OrderStatus order_status){
+            try
+            {
+                var fetchOrder = await _dbContext.Orders.FirstOrDefaultAsync(o => o.reference == reference);
+                if(fetchOrder is null) return null;
+                
+                if (order_status != null)
+                    fetchOrder.order_status = order_status;
+                
+                var updateOrder = _dbContext.Orders.Update(fetchOrder);
+                await _dbContext.SaveChangesAsync();
+
+                return fetchOrder;
+            }
+            catch (System.Exception ex)
+            {
+                var errorMessage = ex.InnerException?.Message;      
+                throw;
+            }
+        }
         public string GeneratePaymentReference()
         {
             try

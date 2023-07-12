@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace userIdentity.Migrations
+namespace walletsystem.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     partial class DatabaseContextModelSnapshot : ModelSnapshot
@@ -48,7 +48,6 @@ namespace userIdentity.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("reference")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("senders_wallet_tag")

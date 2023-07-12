@@ -12,7 +12,7 @@ namespace OrderEntity
         public int amount { get; set; }
         public string recievers_wallet_tag { get; set; }
         public string? purpose { get; set; }
-        public string reference { get; set; }
+        public string? reference { get; set; }
         public OrderStatus order_status {get; set;} = OrderStatus.logged;
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
