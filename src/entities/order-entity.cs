@@ -10,7 +10,7 @@ namespace OrderEntity
         public string? senders_wallet_tag { get; set; }
         public OrderType order_type { get; set; }
         public int amount { get; set; }
-        public string recievers_wallet_tag { get; set; }
+        public required string recievers_wallet_tag { get; set; }
         public string? purpose { get; set; }
         public string? reference { get; set; }
         public OrderStatus order_status {get; set;} = OrderStatus.logged;

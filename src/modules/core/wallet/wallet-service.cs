@@ -3,6 +3,7 @@ using WalletEntity;
 using User_Claim;
 using AppResponse;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Wallet_service
 {
@@ -57,12 +58,35 @@ namespace Wallet_service
         {
             try
             {
-                var userId =  _claimService.AuthenticatedUserClaim();
+                var userId = _claimService.AuthenticatedUserClaim();
 
                 var returnedWallet = await _dbContext.Wallets.FirstOrDefaultAsync(w => w.userId == userId);
                 if (returnedWallet is null)
                     return (T)_appResponse.BadRequest("Wallet Not Found");
                 return (T)_appResponse.Ok(returnedWallet, "Wallet Details");
+            }
+            catch (System.Exception ex)
+            {
+                var errorMessage = ex.InnerException?.Message;
+                throw;
+            }
+        }
+        public async Task<T> updateWallet<T>(int amount)
+        {
+            try
+            {
+                var userId =  _claimService.AuthenticatedUserClaim();
+
+                var returnedWallet = await _dbContext.Wallets.FirstOrDefaultAsync(w => w.userId == userId);
+                if (returnedWallet is null)
+                    return (T)_appResponse.BadRequest("Wallet Not Found");
+
+                returnedWallet.account_balance += amount;
+
+                var updatedWallet = _dbContext.Wallets.Update(returnedWallet);
+                await _dbContext.SaveChangesAsync();
+
+                return (T)_appResponse.Ok(updatedWallet, "Wallet Updates");
             }
             catch (System.Exception ex)
             {

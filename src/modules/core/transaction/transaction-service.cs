@@ -4,6 +4,7 @@ using AppResponse;
 using Order_service;
 using paystack_charge;
 using System.Text.Json;
+using Transaction_helper;
 
 namespace Transaction_service
 {
@@ -14,14 +15,16 @@ namespace Transaction_service
         private readonly ClaimService _claimService;
         private readonly OrderService _orderService;
         private readonly PaystackCharge _paystackCharge;
+        private readonly TransactionHelper _transactionHelper;
 
-        public TransactionService(DatabaseContext dbContext, Response appResponse, PaystackCharge paystackCharge, OrderService orderService, ClaimService claimService)
+        public TransactionService(DatabaseContext dbContext, Response appResponse, PaystackCharge paystackCharge, OrderService orderService, TransactionHelper transactionHelper, ClaimService claimService)
         {
             _dbContext = dbContext;
             _appResponse = appResponse;
             _claimService = claimService;
             _orderService = orderService;
             _paystackCharge = paystackCharge;
+            _transactionHelper = transactionHelper;
         }
 
         public async Task<T> deposit<T>(OrderDetails orderDetails)
@@ -33,7 +36,7 @@ namespace Transaction_service
 
                 var initializeResponse = await _paystackCharge.initializeDeposit(userEmail!, orderDetails.amount);
                 var responseObject = JsonSerializer.Deserialize<JsonElement>(initializeResponse);
-                string reference = responseObject.GetProperty("data").GetProperty("reference").GetString();
+                string reference = responseObject.GetProperty("data").GetProperty("reference").GetString() ?? string.Empty;
 
                 var createOrder = await _orderService.logOrder(orderDetails, userId, OrderType.Deposit, reference);
                 if (createOrder is null)
@@ -98,17 +101,22 @@ namespace Transaction_service
         {
             try
             {
+                OrderStatus order_status = OrderStatus.Successfull;
+                
                 var verifyResponse = await _paystackCharge.verifyTranasction(reference);
                 var responseObject = JsonSerializer.Deserialize<JsonElement>(verifyResponse);
-                string paymentStatus = responseObject.GetProperty("data").GetProperty("status").GetString();
+                string paymentStatus = responseObject.GetProperty("data").GetProperty("status").GetString() ?? string.Empty;
                 if (paymentStatus != "success")
                     return (T)_appResponse.BadRequest("Transaction Failed");
                 
-                // Check if a reference or order has been updated here
+                var getOrder = await _orderService.getOrder(reference);
+                if(getOrder?.order_status == order_status){
+                    return (T)_appResponse.BadRequest("This Order has been verified");     
+                }
 
-                // Run the credit or debit logic here before you update the orderstatus
+                int amount = responseObject.GetProperty("data").GetProperty("amount").GetInt32();
+                await _transactionHelper.creditAccount<T>(amount);
 
-                OrderStatus order_status = OrderStatus.Successfull;
                 var updateOrder = await _orderService.updateOrder(reference, order_status);
                 if(updateOrder is null){
                     return (T)_appResponse.BadRequest("Order Update Failed");     
@@ -116,9 +124,9 @@ namespace Transaction_service
 
                 return (T)_appResponse.Ok(responseObject, "Verification Status");
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-
+                var errorMessage = ex.InnerException?.Message;
                 throw;
             }
         }

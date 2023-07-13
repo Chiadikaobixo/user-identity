@@ -15,7 +15,7 @@ namespace Order_service
             _appResponse = appResponse;
 
         }
-        public async Task<Order> logOrder(OrderDetails orderDetails, Guid? userId, OrderType ordertype, string? paymentReference)
+        public async Task<Order?> logOrder(OrderDetails orderDetails, Guid? userId, OrderType ordertype, string? paymentReference)
         {
             try
             {
@@ -42,15 +42,29 @@ namespace Order_service
                 throw;
             }
         }
+
+        public async Task<Order?> getOrder(string reference){
+            try
+            {
+                var fetchOrder = await _dbContext.Orders.FirstOrDefaultAsync(o => o.reference == reference);
+                if(fetchOrder is null) return null;
+
+                return fetchOrder;
+            }
+            catch (System.Exception ex)
+            {
+                var errorMessage = ex.InnerException?.Message;
+                throw;
+            }
+        }
         
-        public async Task<Order> updateOrder(string reference, OrderStatus order_status){
+        public async Task<Order?> updateOrder(string reference, OrderStatus order_status){
             try
             {
                 var fetchOrder = await _dbContext.Orders.FirstOrDefaultAsync(o => o.reference == reference);
                 if(fetchOrder is null) return null;
                 
-                if (order_status != null)
-                    fetchOrder.order_status = order_status;
+                fetchOrder.order_status = order_status;
                 
                 var updateOrder = _dbContext.Orders.Update(fetchOrder);
                 await _dbContext.SaveChangesAsync();
@@ -63,6 +77,7 @@ namespace Order_service
                 throw;
             }
         }
+
         public string GeneratePaymentReference()
         {
             try
